@@ -9,14 +9,14 @@
   <style>
     :root {
       --bg: #f3f6fb;
-      --panel: #fff;
+      --panel: #ffffff;
       --ink: #172033;
       --muted: #64748b;
-      --blue: #2356a8;
       --line: #dbe3ef;
       --red: #b42318;
       --amber: #a15c00;
       --green: #16794b;
+      --blue: #2356a8;
     }
 
     * {
@@ -33,11 +33,11 @@
     header {
       background: #14294b;
       color: white;
-      padding: 22px 5%;
+      padding: 24px 5%;
     }
 
     header h1 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: clamp(22px, 3vw, 32px);
     }
 
@@ -56,23 +56,34 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     select,
     button {
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 11px 13px;
       background: white;
       font-size: 14px;
     }
 
+    button {
+      background: var(--blue);
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
     .metrics {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-      margin-bottom: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
     }
 
     .metric,
@@ -80,7 +91,7 @@
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 16px;
+      padding: 18px;
       box-shadow: 0 2px 7px #10264b0b;
     }
 
@@ -92,13 +103,14 @@
     }
 
     .metric .value {
-      font-size: 26px;
+      font-size: 27px;
       font-weight: 700;
-      margin-top: 8px;
+      margin-top: 10px;
+      overflow-wrap: anywhere;
     }
 
     .section-title {
-      margin: 22px 0 10px;
+      margin: 24px 0 12px;
     }
 
     .table-wrap {
@@ -115,8 +127,9 @@
     th,
     td {
       text-align: left;
-      padding: 11px 10px;
+      padding: 12px 10px;
       border-bottom: 1px solid var(--line);
+      vertical-align: top;
     }
 
     th {
@@ -126,12 +139,17 @@
       text-transform: uppercase;
     }
 
+    tbody tr:hover {
+      background: #f8fafc;
+    }
+
     .pill {
       display: inline-block;
-      padding: 4px 8px;
+      padding: 5px 9px;
       border-radius: 99px;
       font-weight: 700;
       font-size: 11px;
+      white-space: nowrap;
     }
 
     .ok {
@@ -152,12 +170,13 @@
     .alert {
       border-left: 4px solid var(--amber);
       background: #fff8e8;
-      padding: 10px 12px;
-      margin: 8px 0;
+      padding: 12px;
+      margin: 10px 0;
       border-radius: 6px;
+      line-height: 1.5;
     }
 
-    .alert.critical-alert {
+    .critical-alert {
       border-left-color: var(--red);
       background: #fff0ef;
     }
@@ -166,10 +185,16 @@
       color: var(--muted);
     }
 
+    .empty {
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+    }
+
     footer {
       text-align: center;
       color: var(--muted);
-      padding: 18px;
+      padding: 20px;
       font-size: 12px;
     }
 
@@ -188,7 +213,7 @@
 <body>
   <header>
     <h1>Industrial Predictive Maintenance</h1>
-    <p>Simulated equipment telemetry · maintenance risk · downtime analytics</p>
+    <p>Equipment monitoring | Predictive maintenance | Downtime analytics</p>
   </header>
 
   <main>
@@ -208,50 +233,50 @@
         <option value="Maintenance">Maintenance</option>
       </select>
 
-      <button id="resetFilters" type="button">Reset filters</button>
+      <button id="resetFilters" type="button">Reset Filters</button>
     </div>
 
     <section class="metrics" aria-label="Equipment summary">
       <div class="metric">
-        <div class="label">Machines shown</div>
+        <div class="label">Machines Shown</div>
         <div class="value" id="machineCount">0</div>
       </div>
 
       <div class="metric">
-        <div class="label">Operational machines</div>
+        <div class="label">Total Operational Machines</div>
         <div class="value" id="operationalCount">0</div>
       </div>
 
       <div class="metric">
-        <div class="label">Total downtime</div>
+        <div class="label">Total Downtime</div>
         <div class="value" id="downtimeTotal">0 h</div>
       </div>
 
       <div class="metric">
-        <div class="label">Highest maintenance risk</div>
+        <div class="label">Highest Maintenance Risk</div>
         <div class="value" id="highestRisk">—</div>
       </div>
     </section>
 
     <section class="panel">
-      <h2 class="section-title">Sensor alerts</h2>
+      <h2 class="section-title">Sensor Alerts</h2>
       <div id="alerts" aria-live="polite"></div>
     </section>
 
-    <h2 class="section-title">Equipment monitoring</h2>
+    <h2 class="section-title">Equipment Monitoring Dashboard</h2>
 
     <section class="panel table-wrap">
       <table>
         <thead>
           <tr>
             <th>Machine ID</th>
-            <th>Production unit</th>
-            <th>Operating hours</th>
+            <th>Production Unit</th>
+            <th>Operating Hours</th>
             <th>Temperature</th>
             <th>Vibration</th>
             <th>Status</th>
-            <th>Maintenance due</th>
-            <th>Recent downtime</th>
+            <th>Maintenance Due</th>
+            <th>Recent Downtime</th>
           </tr>
         </thead>
 
@@ -259,17 +284,19 @@
       </table>
     </section>
 
-    <h2 class="section-title">Maintenance priority and recommended action</h2>
+    <h2 class="section-title">
+      Predictive Maintenance and Downtime Analytics
+    </h2>
 
     <section class="panel table-wrap">
       <table>
         <thead>
           <tr>
             <th>Priority</th>
-            <th>Machine</th>
+            <th>Machine ID</th>
             <th>Severity</th>
             <th>Reason</th>
-            <th>Recommended action</th>
+            <th>Recommended Action</th>
           </tr>
         </thead>
 
@@ -278,7 +305,7 @@
     </section>
 
     <footer>
-      Training demonstration only · all readings are simulated
+      Industrial equipment monitoring demonstration · Simulated data
     </footer>
   </main>
 
@@ -346,48 +373,64 @@
       }
     ];
 
-    function riskScore(m) {
-      return (
-        (m.temp > 80 ? 2 : 0) +
-        (m.vibration > 5 ? 2 : m.vibration > 4 ? 1 : 0) +
-        (m.downtime >= 10 ? 2 : m.downtime >= 5 ? 1 : 0) +
-        (
-          new Date(m.due + "T00:00:00") <=
-          new Date("2026-10-22T00:00:00") ? 2 : 0
-        )
-      );
+    function riskScore(machine) {
+      const temperatureRisk = machine.temp > 80 ? 2 : 0;
+
+      const vibrationRisk =
+        machine.vibration > 5 ? 2 :
+        machine.vibration > 4 ? 1 : 0;
+
+      const downtimeRisk =
+        machine.downtime >= 10 ? 2 :
+        machine.downtime >= 5 ? 1 : 0;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const dueDate = new Date(machine.due + "T00:00:00");
+      const maintenanceRisk = dueDate <= today ? 2 : 0;
+
+      return temperatureRisk +
+        vibrationRisk +
+        downtimeRisk +
+        maintenanceRisk;
     }
 
-    function severity(m) {
-      const score = riskScore(m);
+    function severity(machine) {
+      const score = riskScore(machine);
 
-      return score >= 5
-        ? "Critical"
-        : score >= 3
-          ? "High"
-          : score >= 1
-            ? "Moderate"
-            : "Low";
+      if (score >= 5) return "Critical";
+      if (score >= 3) return "High";
+      if (score >= 1) return "Moderate";
+
+      return "Low";
     }
 
-    function action(m) {
-      if (m.temp > 80 && m.vibration > 5) {
-        return "Stop safely; inspect bearings, cooling and alignment.";
+    function severityClass(level) {
+      if (level === "Critical") return "critical";
+      if (level === "High" || level === "Moderate") return "warn";
+
+      return "ok";
+    }
+
+    function action(machine) {
+      if (machine.temp > 80 && machine.vibration > 5) {
+        return "Inspect bearings, cooling system and shaft alignment. Prioritize immediate maintenance.";
       }
 
-      if (m.temp > 80) {
-        return "Inspect cooling system and temperature sensor.";
+      if (machine.temp > 80) {
+        return "Inspect the cooling system and temperature sensor.";
       }
 
-      if (m.vibration > 5) {
-        return "Inspect bearings, balance and shaft alignment.";
+      if (machine.vibration > 5) {
+        return "Inspect bearings, machine balance and shaft alignment.";
       }
 
-      if (m.downtime >= 5) {
-        return "Review downtime cause and schedule preventive service.";
+      if (machine.downtime >= 5) {
+        return "Review downtime causes and schedule preventive maintenance.";
       }
 
-      return "Continue monitoring; perform scheduled preventive maintenance.";
+      return "Continue monitoring and follow the scheduled maintenance plan.";
     }
 
     function pill(text, type) {
@@ -395,121 +438,168 @@
     }
 
     function render() {
-      const unit = document.getElementById("unitFilter").value;
-      const status = document.getElementById("statusFilter").value;
+      const selectedUnit =
+        document.getElementById("unitFilter").value;
 
-      const visible = machines.filter(
-        m =>
-          (unit === "All" || m.unit === unit) &&
-          (status === "All" || m.status === status)
-      );
+      const selectedStatus =
+        document.getElementById("statusFilter").value;
+
+      const visible = machines.filter(machine => {
+        const matchesUnit =
+          selectedUnit === "All" ||
+          machine.unit === selectedUnit;
+
+        const matchesStatus =
+          selectedStatus === "All" ||
+          machine.status === selectedStatus;
+
+        return matchesUnit && matchesStatus;
+      });
 
       document.getElementById("machineCount").textContent =
         visible.length;
 
       document.getElementById("operationalCount").textContent =
-        visible.filter(m => m.status === "Operational").length;
+        visible.filter(
+          machine => machine.status === "Operational"
+        ).length;
 
       document.getElementById("downtimeTotal").textContent =
-        visible.reduce((sum, m) => sum + m.downtime, 0) + " h";
+        visible.reduce(
+          (total, machine) => total + machine.downtime,
+          0
+        ) + " h";
 
       const riskSorted = [...visible].sort(
         (a, b) => riskScore(b) - riskScore(a)
       );
 
       document.getElementById("highestRisk").textContent =
-        riskSorted.length ? riskSorted[0].id : "—";
+        riskSorted.length > 0
+          ? riskSorted[0].id
+          : "—";
 
       document.getElementById("machineRows").innerHTML =
-        visible.map(m => {
-          const hot = m.temp > 80;
-          const vib = m.vibration > 5;
+        visible.length > 0
+          ? visible.map(machine => {
+              const hot = machine.temp > 80;
+              const highVibration = machine.vibration > 5;
 
-          const statusClass =
-            m.status === "Operational"
-              ? "ok"
-              : m.status === "Maintenance"
-                ? "critical"
-                : "warn";
+              const statusType =
+                machine.status === "Operational"
+                  ? "ok"
+                  : machine.status === "Maintenance"
+                    ? "critical"
+                    : "warn";
 
-          return `
-            <tr>
-              <td><b>${m.id}</b></td>
-              <td>${m.unit}</td>
-              <td>${m.hours.toLocaleString()} h</td>
-              <td>${m.temp} °C ${hot ? pill("HIGH", "critical") : ""}</td>
-              <td>${m.vibration.toFixed(1)} mm/s ${
-                vib ? pill("HIGH", "critical") : ""
-              }</td>
-              <td>${pill(m.status, statusClass)}</td>
-              <td>${m.due}</td>
-              <td>${m.downtime} h</td>
-            </tr>
-          `;
-        }).join("");
+              return `
+                <tr>
+                  <td><b>${machine.id}</b></td>
+                  <td>${machine.unit}</td>
+                  <td>${machine.hours.toLocaleString()} h</td>
+                  <td>
+                    ${machine.temp} °C
+                    ${hot ? pill("HIGH", "critical") : ""}
+                  </td>
+                  <td>
+                    ${machine.vibration.toFixed(1)} mm/s
+                    ${
+                      highVibration
+                        ? pill("HIGH", "critical")
+                        : ""
+                    }
+                  </td>
+                  <td>${pill(machine.status, statusType)}</td>
+                  <td>${machine.due}</td>
+                  <td>${machine.downtime} h</td>
+                </tr>
+              `;
+            }).join("")
+          : `
+              <tr>
+                <td colspan="8" class="empty">
+                  No machines match the selected filters.
+                </td>
+              </tr>
+            `;
 
       const flagged = visible.filter(
-        m => m.temp > 80 || m.vibration > 5
+        machine =>
+          machine.temp > 80 ||
+          machine.vibration > 5
       );
 
       document.getElementById("alerts").innerHTML =
-        flagged.length
-          ? flagged.map(m => `
-              <div class="alert ${
-                severity(m) === "Critical" ? "critical-alert" : ""
-              }">
-                <b>${m.id} — ${severity(m)} risk:</b>
-                ${
-                  m.temp > 80
-                    ? "temperature exceeds 80°C"
-                    : ""
-                }${
-                  m.temp > 80 && m.vibration > 5
-                    ? " and "
-                    : ""
-                }${
-                  m.vibration > 5
-                    ? "vibration exceeds 5.0 mm/s"
-                    : ""
-                }.
-                ${action(m)}
-              </div>
-            `).join("")
+        flagged.length > 0
+          ? flagged.map(machine => {
+              const reasons = [];
+
+              if (machine.temp > 80) {
+                reasons.push("Temperature exceeds 80°C");
+              }
+
+              if (machine.vibration > 5) {
+                reasons.push("Vibration exceeds 5.0 mm/s");
+              }
+
+              const level = severity(machine);
+
+              return `
+                <div class="alert ${
+                  level === "Critical" ? "critical-alert" : ""
+                }">
+                  <b>${machine.id} — ${level} Risk</b><br>
+                  ${reasons.join(" and ")}.<br>
+                  <b>Recommended action:</b> ${action(machine)}
+                </div>
+              `;
+            }).join("")
           : `
               <p class="muted">
-                No abnormal temperature or vibration readings in the selected machines.
+                No abnormal temperature or vibration readings
+                in the selected machines.
               </p>
             `;
 
       document.getElementById("priorityRows").innerHTML =
-        riskSorted.map((m, i) => {
-          const level = severity(m);
+        riskSorted.length > 0
+          ? riskSorted.map((machine, index) => {
+              const level = severity(machine);
+              const reasons = [];
 
-          const severityClass =
-            level === "Critical"
-              ? "critical"
-              : level === "High"
-                ? "warn"
-                : "ok";
+              if (machine.temp > 80) {
+                reasons.push("High temperature");
+              }
 
-          return `
-            <tr>
-              <td>${i + 1}</td>
-              <td>${m.id}</td>
-              <td>${pill(level, severityClass)}</td>
-              <td>${
-                m.temp > 80 ? "High temperature; " : ""
-              }${
-                m.vibration > 5 ? "High vibration; " : ""
-              }${
-                m.downtime >= 5
-                  ? "Elevated downtime"
-                  : "Routine monitoring"
-              }</td>
-              <td>${action(m)}</td>
-            </tr>
-          `;
-        }).join("");
+              if (machine.vibration > 5) {
+                reasons.push("High vibration");
+              }
+
+              if (machine.downtime >= 5) {
+                reasons.push("Elevated downtime");
+              }
+
+              if (reasons.length === 0) {
+                reasons.push("Routine monitoring");
+              }
+
+              return `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td><b>${machine.id}</b></td>
+                  <td>${pill(level, severityClass(level))}</td>
+                  <td>${reasons.join("; ")}</td>
+                  <td>${action(machine)}</td>
+                </tr>
+              `;
+            }).join("")
+          : `
+              <tr>
+                <td colspan="5" class="empty">
+                  No machines match the selected filters.
+                </td>
+              </tr>
+            `;
     }
 
     document.getElementById("unitFilter")
