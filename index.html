@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Industrial Predictive Maintenance Dashboard</title>
+
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --panel: #fff;
+      --ink: #172033;
+      --muted: #64748b;
+      --blue: #2356a8;
+      --line: #dbe3ef;
+      --red: #b42318;
+      --amber: #a15c00;
+      --green: #16794b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    header {
+      background: #14294b;
+      color: white;
+      padding: 22px 5%;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 3vw, 32px);
+    }
+
+    header p {
+      margin: 0;
+      color: #d8e5fa;
+    }
+
+    main {
+      max-width: 1400px;
+      margin: 22px auto;
+      padding: 0 18px 32px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    select,
+    button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: white;
+      font-size: 14px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 7px #10264b0b;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric .value {
+      font-size: 26px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .section-title {
+      margin: 22px 0 10px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 850px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 11px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      background: #f7f9fc;
+      color: #475569;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-weight: 700;
+      font-size: 11px;
+    }
+
+    .ok {
+      color: var(--green);
+      background: #e5f7ed;
+    }
+
+    .warn {
+      color: var(--amber);
+      background: #fff2d7;
+    }
+
+    .critical {
+      color: var(--red);
+      background: #fde8e7;
+    }
+
+    .alert {
+      border-left: 4px solid var(--amber);
+      background: #fff8e8;
+      padding: 10px 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+    }
+
+    .alert.critical-alert {
+      border-left-color: var(--red);
+      background: #fff0ef;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 18px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 0 10px 24px;
+      }
+
+      .metric .value {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>Industrial Predictive Maintenance</h1>
+    <p>Simulated equipment telemetry · maintenance risk · downtime analytics</p>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <select id="unitFilter" aria-label="Filter by production unit">
+        <option value="All">All production units</option>
+        <option value="Assembly">Assembly</option>
+        <option value="Packaging">Packaging</option>
+        <option value="Machining">Machining</option>
+        <option value="Utilities">Utilities</option>
+      </select>
+
+      <select id="statusFilter" aria-label="Filter by machine status">
+        <option value="All">All machine statuses</option>
+        <option value="Operational">Operational</option>
+        <option value="Warning">Warning</option>
+        <option value="Maintenance">Maintenance</option>
+      </select>
+
+      <button id="resetFilters" type="button">Reset filters</button>
+    </div>
+
+    <section class="metrics" aria-label="Equipment summary">
+      <div class="metric">
+        <div class="label">Machines shown</div>
+        <div class="value" id="machineCount">0</div>
+      </div>
+
+      <div class="metric">
+        <div class="label">Operational machines</div>
+        <div class="value" id="operationalCount">0</div>
+      </div>
+
+      <div class="metric">
+        <div class="label">Total downtime</div>
+        <div class="value" id="downtimeTotal">0 h</div>
+      </div>
+
+      <div class="metric">
+        <div class="label">Highest maintenance risk</div>
+        <div class="value" id="highestRisk">—</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="section-title">Sensor alerts</h2>
+      <div id="alerts" aria-live="polite"></div>
+    </section>
+
+    <h2 class="section-title">Equipment monitoring</h2>
+
+    <section class="panel table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Machine ID</th>
+            <th>Production unit</th>
+            <th>Operating hours</th>
+            <th>Temperature</th>
+            <th>Vibration</th>
+            <th>Status</th>
+            <th>Maintenance due</th>
+            <th>Recent downtime</th>
+          </tr>
+        </thead>
+
+        <tbody id="machineRows"></tbody>
+      </table>
+    </section>
+
+    <h2 class="section-title">Maintenance priority and recommended action</h2>
+
+    <section class="panel table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Priority</th>
+            <th>Machine</th>
+            <th>Severity</th>
+            <th>Reason</th>
+            <th>Recommended action</th>
+          </tr>
+        </thead>
+
+        <tbody id="priorityRows"></tbody>
+      </table>
+    </section>
+
+    <footer>
+      Training demonstration only · all readings are simulated
+    </footer>
+  </main>
+
+  <script>
+    const machines = [
+      {
+        id: "M-101",
+        unit: "Assembly",
+        hours: 6240,
+        temp: 74,
+        vibration: 3.2,
+        status: "Operational",
+        due: "2026-11-02",
+        downtime: 2
+      },
+      {
+        id: "M-102",
+        unit: "Machining",
+        hours: 8120,
+        temp: 86,
+        vibration: 5.8,
+        status: "Warning",
+        due: "2026-10-24",
+        downtime: 9
+      },
+      {
+        id: "M-103",
+        unit: "Packaging",
+        hours: 4380,
+        temp: 68,
+        vibration: 2.1,
+        status: "Operational",
+        due: "2026-11-18",
+        downtime: 1
+      },
+      {
+        id: "M-104",
+        unit: "Utilities",
+        hours: 9050,
+        temp: 82,
+        vibration: 7.1,
+        status: "Maintenance",
+        due: "2026-10-22",
+        downtime: 14
+      },
+      {
+        id: "M-105",
+        unit: "Assembly",
+        hours: 5710,
+        temp: 79,
+        vibration: 4.4,
+        status: "Warning",
+        due: "2026-10-27",
+        downtime: 6
+      },
+      {
+        id: "M-106",
+        unit: "Machining",
+        hours: 7330,
+        temp: 72,
+        vibration: 3.7,
+        status: "Operational",
+        due: "2026-11-07",
+        downtime: 3
+      }
+    ];
+
+    function riskScore(m) {
+      return (
+        (m.temp > 80 ? 2 : 0) +
+        (m.vibration > 5 ? 2 : m.vibration > 4 ? 1 : 0) +
+        (m.downtime >= 10 ? 2 : m.downtime >= 5 ? 1 : 0) +
+        (
+          new Date(m.due + "T00:00:00") <=
+          new Date("2026-10-22T00:00:00") ? 2 : 0
+        )
+      );
+    }
+
+    function severity(m) {
+      const score = riskScore(m);
+
+      return score >= 5
+        ? "Critical"
+        : score >= 3
+          ? "High"
+          : score >= 1
+            ? "Moderate"
+            : "Low";
+    }
+
+    function action(m) {
+      if (m.temp > 80 && m.vibration > 5) {
+        return "Stop safely; inspect bearings, cooling and alignment.";
+      }
+
+      if (m.temp > 80) {
+        return "Inspect cooling system and temperature sensor.";
+      }
+
+      if (m.vibration > 5) {
+        return "Inspect bearings, balance and shaft alignment.";
+      }
+
+      if (m.downtime >= 5) {
+        return "Review downtime cause and schedule preventive service.";
+      }
+
+      return "Continue monitoring; perform scheduled preventive maintenance.";
+    }
+
+    function pill(text, type) {
+      return `<span class="pill ${type}">${text}</span>`;
+    }
+
+    function render() {
+      const unit = document.getElementById("unitFilter").value;
+      const status = document.getElementById("statusFilter").value;
+
+      const visible = machines.filter(
+        m =>
+          (unit === "All" || m.unit === unit) &&
+          (status === "All" || m.status === status)
+      );
+
+      document.getElementById("machineCount").textContent =
+        visible.length;
+
+      document.getElementById("operationalCount").textContent =
+        visible.filter(m => m.status === "Operational").length;
+
+      document.getElementById("downtimeTotal").textContent =
+        visible.reduce((sum, m) => sum + m.downtime, 0) + " h";
+
+      const riskSorted = [...visible].sort(
+        (a, b) => riskScore(b) - riskScore(a)
+      );
+
+      document.getElementById("highestRisk").textContent =
+        riskSorted.length ? riskSorted[0].id : "—";
+
+      document.getElementById("machineRows").innerHTML =
+        visible.map(m => {
+          const hot = m.temp > 80;
+          const vib = m.vibration > 5;
+
+          const statusClass =
+            m.status === "Operational"
+              ? "ok"
+              : m.status === "Maintenance"
+                ? "critical"
+                : "warn";
+
+          return `
+            <tr>
+              <td><b>${m.id}</b></td>
+              <td>${m.unit}</td>
+              <td>${m.hours.toLocaleString()} h</td>
+              <td>${m.temp} °C ${hot ? pill("HIGH", "critical") : ""}</td>
+              <td>${m.vibration.toFixed(1)} mm/s ${
+                vib ? pill("HIGH", "critical") : ""
+              }</td>
+              <td>${pill(m.status, statusClass)}</td>
+              <td>${m.due}</td>
+              <td>${m.downtime} h</td>
+            </tr>
+          `;
+        }).join("");
+
+      const flagged = visible.filter(
+        m => m.temp > 80 || m.vibration > 5
+      );
+
+      document.getElementById("alerts").innerHTML =
+        flagged.length
+          ? flagged.map(m => `
+              <div class="alert ${
+                severity(m) === "Critical" ? "critical-alert" : ""
+              }">
+                <b>${m.id} — ${severity(m)} risk:</b>
+                ${
+                  m.temp > 80
+                    ? "temperature exceeds 80°C"
+                    : ""
+                }${
+                  m.temp > 80 && m.vibration > 5
+                    ? " and "
+                    : ""
+                }${
+                  m.vibration > 5
+                    ? "vibration exceeds 5.0 mm/s"
+                    : ""
+                }.
+                ${action(m)}
+              </div>
+            `).join("")
+          : `
+              <p class="muted">
+                No abnormal temperature or vibration readings in the selected machines.
+              </p>
+            `;
+
+      document.getElementById("priorityRows").innerHTML =
+        riskSorted.map((m, i) => {
+          const level = severity(m);
+
+          const severityClass =
+            level === "Critical"
+              ? "critical"
+              : level === "High"
+                ? "warn"
+                : "ok";
+
+          return `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${m.id}</td>
+              <td>${pill(level, severityClass)}</td>
+              <td>${
+                m.temp > 80 ? "High temperature; " : ""
+              }${
+                m.vibration > 5 ? "High vibration; " : ""
+              }${
+                m.downtime >= 5
+                  ? "Elevated downtime"
+                  : "Routine monitoring"
+              }</td>
+              <td>${action(m)}</td>
+            </tr>
+          `;
+        }).join("");
+    }
+
+    document.getElementById("unitFilter")
+      .addEventListener("change", render);
+
+    document.getElementById("statusFilter")
+      .addEventListener("change", render);
+
+    document.getElementById("resetFilters")
+      .addEventListener("click", () => {
+        document.getElementById("unitFilter").value = "All";
+        document.getElementById("statusFilter").value = "All";
+        render();
+      });
+
+    render();
+  </script>
+</body>
+</html>
